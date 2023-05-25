@@ -45,7 +45,7 @@ function Board({ nrows = 3, ncols = 3, chanceLightStartsOn = 0.50 }) {
   }
 
   function hasWon() {
-    return board.every(r => r.every(c => c === true))
+    return board.every(r => r.every(c => !c))
   }
 
   function flipCellsAround(coord) {
@@ -61,14 +61,14 @@ function Board({ nrows = 3, ncols = 3, chanceLightStartsOn = 0.50 }) {
       };
 
       // TODO: Make a (deep) copy of the oldBoard
-      const boardCopy = oldBoard.map(r => r.map(c => c))
+      const boardCopy = oldBoard.map(row => [...row])
 
       // TODO: in the copy, flip this cell and the cells around it
       flipCell(y, x, boardCopy)
-      flipCell((y+1), (x), boardCopy)
-      flipCell((y-1), (x), boardCopy)
-      flipCell((y), (x-1), boardCopy)
-      flipCell((y), (x+1), boardCopy)
+      flipCell((y + 1), (x), boardCopy)
+      flipCell((y - 1), (x), boardCopy)
+      flipCell((y), (x - 1), boardCopy)
+      flipCell((y), (x + 1), boardCopy)
 
       // TODO: return the copy
       return boardCopy
@@ -76,29 +76,33 @@ function Board({ nrows = 3, ncols = 3, chanceLightStartsOn = 0.50 }) {
   }
 
   // if the game is won, just show a winning msg & render nothing else
-  if (hasWon) {
-    console.log(hasWon())
-    return displayBoard()
-  } else {
-    return "YOU WIN!"
+  if (hasWon()) {
+    return <h1>"YOU WIN!"</h1>
   }
   // TODO
 
   // make table board
-  function displayBoard() {
-    return (
-      <table>
-        {<tbody>
-          {board.map((r, y) =>
-            <tr key={y}>{r.map((bool, x) =>
-              <Cell flipCellsAroundMe={flipCellsAround} coord={`${y}-${x}`} isLit={bool} key={`${y}-${x}`} />
-            )}</tr>
-          )}
-        </tbody>}
-      </table>
-    )
+  let tableBoard = []
+  for (let y = 0; y < nrows; y++) {
+    let rows = [];
+    for (let x = 0; x < ncols; x++) {
+      rows.push(<Cell
+        key={`${y}-${x}`}
+        isLit={board[y][x]}
+        flipCellsAroundMe={() => flipCellsAround(`${y}-${x}`)}
+        />
+      );
+    }
+    tableBoard.push(<tr key={y}>{rows}</tr>)
   }
   // TODO
+  return (
+    <table>
+      <tbody>
+        {tableBoard}
+      </tbody>
+    </table>
+  )
 }
 
 export default Board;
